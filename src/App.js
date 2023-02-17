@@ -14,8 +14,10 @@ const App = () => {
     }
   `;
 
-  //constant length of a university ID hash
-  const UID_LENGTH = 9
+  //constant length of a university ID num
+  const UNFORMATTED_MAG_UID_LENGTH = 15
+  const UNFORMATTED_RFID_UID_LENGTH = 9
+
   
   //The ID of the machine this ACS BOX is attached to
   const EQUIPMENT_ID = 1 //CNC machine in test db
@@ -27,7 +29,7 @@ const App = () => {
   This piece of state contains the text currently
   dispalyed in uid-textbox
   */
-  const [uid, setUid] = useState('')
+  const [uidInput, setUidInput] = useState('')
 
   /*
   This piece of state contains the text for the "User has access"
@@ -39,10 +41,18 @@ const App = () => {
   This function is called every time the uid-textbox is updated
   */
   const checkUid = (uidTemp) => {
-    setUid(uidTemp)
-    if(uid.length === UID_LENGTH)
-    {
-      sendQuery();
+    setUidInput(uidTemp)
+
+    if(uidTemp[0] === ";" && uidInput.length === UNFORMATTED_MAG_UID_LENGTH)
+    { 
+      const validUid = uidTemp.slice(1, 10)
+      sendQuery(validUid);
+    }
+
+    else if(uidTemp[0] === "0" && uidInput.length === UNFORMATTED_RFID_UID_LENGTH)
+    { 
+      const validUid = uidTemp.slice(1, 10)
+      sendQuery(validUid);
     }
   }
 
@@ -51,11 +61,11 @@ const App = () => {
   It queries the server by sending the uid and machine id
   to the server, then sets the output state based on the response
   */
-  const sendQuery = () => {
+  const sendQuery = (validUid) => {
     
     const vars = {
-      equipmentID: 1,
-      uid: uid
+      EQUIPMENT_ID: 1,
+      uid: validUid
     }
 
     axios.post(url, {
@@ -66,14 +76,15 @@ const App = () => {
     .catch(error =>console.error(error))
 
     //reset the uid textbox
-    setUid('');
+    setUidInput('');
+    setOutput("last uid swiped: " + validUid)
   }
 
 
   return(
   <div className="acs-parent">
     <div className="uid-textbox">
-      <input value={uid} onChange={(event) => checkUid(event.target.value)} />
+      <input value={uidInput} onChange={(event) => checkUid(event.target.value)} />
     </div>
     <div className="server-response">
       {output.length > 0 ? (<p>{output}</p>) : (<p>Swipe or tap ID</p>)}
