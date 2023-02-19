@@ -42,17 +42,40 @@ const App = () => {
   */
   const checkUid = (uidTemp) => {
     setUidInput(uidTemp)
-
+    /*
+    let valid = 0;
+    switch (uidTemp[0]) {
+      case ";":
+        valid = uidInput.length === UNFORMATTED_MAG_UID_LENGTH? 1 : 0;
+        break;
+      case "0":
+        valid = uidInput.length === UNFORMATTED_RFID_UID_LENGTH? 1 : 0;
+        break;
+      default:
+        break;
+    }
+    if (valid == 1){
+      const validUid = uidTemp.slice(1, 10)
+      sendQuery(validUid);
+    }
+    else{
+      setUidInput('');
+      setOutput("last uid swiped: INVALID");
+    }*/
+    
     if(uidTemp[0] === ";" && uidInput.length === UNFORMATTED_MAG_UID_LENGTH)
     { 
       const validUid = uidTemp.slice(1, 10)
       sendQuery(validUid);
     }
-
     else if(uidTemp[0] === "0" && uidInput.length === UNFORMATTED_RFID_UID_LENGTH)
     { 
       const validUid = uidTemp.slice(1, 10)
       sendQuery(validUid);
+    }
+    else if (uidTemp[0] != ";" &&  uidTemp[0] != "0" && uidInput.length === UNFORMATTED_RFID_UID_LENGTH){
+      setUidInput('');
+      setOutput("last uid swiped: Invalid")
     }
   }
 
