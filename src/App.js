@@ -37,45 +37,36 @@ const App = () => {
   */
   const [output, setOutput] = useState('')
 
+  const [inUse, setInUse] = useState('')
+
+  /*
+   When Machine in use, state of current user
+  */
+  const [currUser, setUser] = useState('')
+
   /*
   This function is called every time the uid-textbox is updated
   */
   const checkUid = (uidTemp) => {
-    setUidInput(uidTemp)
-    /*
-    let valid = 0;
-    switch (uidTemp[0]) {
-      case ";":
-        valid = uidInput.length === UNFORMATTED_MAG_UID_LENGTH? 1 : 0;
-        break;
-      case "0":
-        valid = uidInput.length === UNFORMATTED_RFID_UID_LENGTH? 1 : 0;
-        break;
-      default:
-        break;
-    }
-    if (valid == 1){
-      const validUid = uidTemp.slice(1, 10)
-      sendQuery(validUid);
-    }
-    else{
-      setUidInput('');
-      setOutput("last uid swiped: INVALID");
-    }*/
-    
-    if(uidTemp[0] === ";" && uidInput.length === UNFORMATTED_MAG_UID_LENGTH)
-    { 
-      const validUid = uidTemp.slice(1, 10)
-      sendQuery(validUid);
-    }
-    else if(uidTemp[0] === "0" && uidInput.length === UNFORMATTED_RFID_UID_LENGTH)
-    { 
-      const validUid = uidTemp.slice(1, 10)
-      sendQuery(validUid);
-    }
-    else if (uidTemp[0] != ";" &&  uidTemp[0] != "0" && uidInput.length === UNFORMATTED_RFID_UID_LENGTH){
-      setUidInput('');
-      setOutput("last uid swiped: Invalid")
+    /*only perform update if no current user*/
+    if (currUser == "") 
+    {
+      setUidInput(uidTemp)
+      if(uidTemp[0] === ";" && uidInput.length === UNFORMATTED_MAG_UID_LENGTH)
+      { 
+        const validUid = uidTemp.slice(1, 10)
+        sendQuery(validUid);
+      }
+      else if(uidTemp[0] === "0" && uidInput.length === UNFORMATTED_RFID_UID_LENGTH)
+      { 
+        const validUid = uidTemp.slice(1, 10)
+        sendQuery(validUid);
+      }
+      else if (uidTemp[0] != ";" &&  uidTemp[0] != "0" && uidInput.length === UNFORMATTED_RFID_UID_LENGTH){
+        setUidInput('');
+        setOutput("last uid swiped: Invalid")
+        setInUse("")
+      }
     }
   }
 
@@ -101,8 +92,18 @@ const App = () => {
     //reset the uid textbox
     setUidInput('');
     setOutput("last uid swiped: " + validUid)
+    setUser(validUid)
+    setInUse("Machine in Use")
   }
 
+  /*
+  remove current user
+  */
+  function logoutUID() {
+    //alert("Current user " + currUser + " logging out"); // check user is expected before removed
+    setUser("")
+    setInUse("")
+  }
 
   return(
   <div className="acs-parent">
@@ -112,6 +113,12 @@ const App = () => {
     <div className="server-response">
       {output.length > 0 ? (<p>{output}</p>) : (<p>Swipe or tap ID</p>)}
     </div>  
+    <div className="uid-logout">
+      {inUse.length > 0 ? (<p>{inUse}</p>) : (<p>No One Here</p>)}
+    </div>
+    <div>
+      <button onClick={logoutUID}>Log Out</button>
+    </div>
   </div>
   
   )
