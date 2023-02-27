@@ -45,6 +45,11 @@ const App = () => {
   const [currUser, setUser] = useState('')
 
   /*
+  Count time user is logged in
+  */
+  const [timeCount, setTimeCount] = useState(0)
+
+  /*
   This function is called every time the uid-textbox is updated
   */
   const checkUid = (uidTemp) => {
@@ -104,7 +109,18 @@ const App = () => {
     setOutput("")
     setInUse("")
   }
-  
+
+  useEffect(() => {
+    // create a interval and get the id
+    const secInterval = setInterval(() => {
+      if (currUser !== "") {
+        setTimeCount((prevTime) => prevTime + 1);
+      }
+    }, 1000);
+    // clear out the interval using it id when unmounting the component
+    return () => clearInterval(secInterval);
+  }, [currUser]);
+
   return(
   <div className="acs-parent">
     <div className="uid-textbox">
@@ -119,6 +135,7 @@ const App = () => {
     <div>
       <button onClick={logoutUID}>Log Out</button>
     </div>
+    <div> {timeCount} </div>
   </div>
   )
 }
