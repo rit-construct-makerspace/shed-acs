@@ -1,4 +1,4 @@
-import React, {useState} from "react"
+import React, {useState, useEffect} from "react"
 import axios from "axios";
 
 const App = () => {
@@ -40,7 +40,7 @@ const App = () => {
   const [inUse, setInUse] = useState('')
 
   /*
-   When Machine in use, state of current user
+  state contains current user
   */
   const [currUser, setUser] = useState('')
 
@@ -49,7 +49,7 @@ const App = () => {
   */
   const checkUid = (uidTemp) => {
     /*only perform update if no current user*/
-    if (currUser == "") 
+    if (currUser === "") 
     {
       setUidInput(uidTemp)
       if(uidTemp[0] === ";" && uidInput.length === UNFORMATTED_MAG_UID_LENGTH)
@@ -62,7 +62,7 @@ const App = () => {
         const validUid = uidTemp.slice(1, 10)
         sendQuery(validUid);
       }
-      else if (uidTemp[0] != ";" &&  uidTemp[0] != "0" && uidInput.length === UNFORMATTED_RFID_UID_LENGTH){
+      else if (uidTemp[0] !== ";" &&  uidTemp[0] !== "0" && uidInput.length === UNFORMATTED_RFID_UID_LENGTH){
         setUidInput('');
         setOutput("last uid swiped: Invalid")
         setInUse("")
@@ -91,7 +91,7 @@ const App = () => {
 
     //reset the uid textbox
     setUidInput('');
-    setOutput("last uid swiped: " + validUid)
+    setOutput("Current User: " + validUid)
     setUser(validUid)
     setInUse("Machine in Use")
   }
@@ -100,11 +100,11 @@ const App = () => {
   remove current user
   */
   function logoutUID() {
-    //alert("Current user " + currUser + " logging out"); // check user is expected before removed
     setUser("")
+    setOutput("")
     setInUse("")
   }
-
+  
   return(
   <div className="acs-parent">
     <div className="uid-textbox">
@@ -120,7 +120,6 @@ const App = () => {
       <button onClick={logoutUID}>Log Out</button>
     </div>
   </div>
-  
   )
 }
 export default App
