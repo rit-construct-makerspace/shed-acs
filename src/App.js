@@ -18,6 +18,9 @@ const App = () => {
   const UNFORMATTED_MAG_UID_LENGTH = 15
   const UNFORMATTED_RFID_UID_LENGTH = 9
 
+  //constant for time
+  const USER_TIME_FRAME = 10
+  const MACHINE_TIME_FRAME = 100
   
   //The ID of the machine this ACS BOX is attached to
   const EQUIPMENT_ID = 1 //CNC machine in test db
@@ -47,7 +50,11 @@ const App = () => {
   /*
   Count time user is logged in
   */
-  const [timeCount, setTimeCount] = useState(0)
+  const [timeCount, setTimeCount] = useState(USER_TIME_FRAME)
+  /*
+  Machine Maintenance time
+  */
+  const [machineTime, setMachineTime] = useState(MACHINE_TIME_FRAME)
 
   /*
   This function is called every time the uid-textbox is updated
@@ -67,7 +74,8 @@ const App = () => {
         const validUid = uidTemp.slice(1, 10)
         sendQuery(validUid);
       }
-      else if (uidTemp[0] !== ";" &&  uidTemp[0] !== "0" && uidInput.length === UNFORMATTED_RFID_UID_LENGTH){
+      else if (uidTemp[0] !== ";" &&  uidTemp[0] !== "0" && 
+        uidInput.length === UNFORMATTED_RFID_UID_LENGTH){
         setUidInput('');
         setOutput("last uid swiped: Invalid")
         setInUse("")
@@ -108,18 +116,30 @@ const App = () => {
     setUser("")
     setOutput("")
     setInUse("")
+    setTimeCount(USER_TIME_FRAME)
+  }
+
+  function resetRequest(){
+    setMachineTime(MACHINE_TIME_FRAME)
   }
 
   useEffect(() => {
     // create a interval and get the id
     const secInterval = setInterval(() => {
       if (currUser !== "") {
-        setTimeCount((prevTime) => prevTime + 1);
+        setTimeCount((prevTime) => prevTime - 1);
+        setMachineTime((prevTime) => prevTime - 1);
       }
     }, 1000);
     // clear out the interval using it id when unmounting the component
     return () => clearInterval(secInterval);
   }, [currUser]);
+
+  useEffect(() => {
+    if (timeCount === 0) {
+      logoutUID()
+    }
+  }, [timeCount]);
 
   return(
   <div className="acs-parent">
@@ -132,10 +152,11 @@ const App = () => {
     <div className="uid-logout">
       {inUse.length > 0 ? (<p>{inUse}</p>) : (<p>No One Here</p>)}
     </div>
+    <div> {timeCount > 0 ? (<p>{timeCount}</p>) : (<p>Timed Out</p>)} </div>
+    <div> {machineTime > 0 ? (<p>{machineTime}</p>) : (<p>Maintenance Request</p>)} </div>
     <div>
-      <button onClick={logoutUID}>Log Out</button>
+      <button onClick={resetRequest}>Reset Maintenance</button>
     </div>
-    <div> {timeCount} </div>
   </div>
   )
 }
