@@ -20,7 +20,7 @@ const App = () => {
 
   //constant for time
   const USER_TIME_FRAME = 10
-  const MACHINE_TIME_FRAME = 100
+  const MACHINE_TIME_FRAME = 20
   
   //The ID of the machine this ACS BOX is attached to
   const EQUIPMENT_ID = 1 //CNC machine in test db
@@ -41,19 +41,14 @@ const App = () => {
   const [output, setOutput] = useState('')
 
   const [inUse, setInUse] = useState('')
-
-  /*
-  state contains current user
-  */
+  
+  //state contains current user
   const [currUser, setUser] = useState('')
 
-  /*
-  Count time user is logged in
-  */
+  //Count time user is logged in
   const [timeCount, setTimeCount] = useState(USER_TIME_FRAME)
-  /*
-  Machine Maintenance time
-  */
+  
+  //Machine Maintenance time
   const [machineTime, setMachineTime] = useState(MACHINE_TIME_FRAME)
 
   /*
@@ -127,8 +122,8 @@ const App = () => {
     // create a interval and get the id
     const secInterval = setInterval(() => {
       if (currUser !== "") {
-        setTimeCount((prevTime) => prevTime - 1);
-        setMachineTime((prevTime) => prevTime - 1);
+        setTimeCount((timeCount != 0) ? ((prevTime) => prevTime - 1) : 0);
+        setMachineTime((machineTime != 0) ? ((prevTime) => prevTime - 1) : 0);
       }
     }, 1000);
     // clear out the interval using it id when unmounting the component
@@ -155,7 +150,7 @@ const App = () => {
     <div> {timeCount > 0 ? (<p>{timeCount}</p>) : (<p>Timed Out</p>)} </div>
     <div> {machineTime > 0 ? (<p>{machineTime}</p>) : (<p>Maintenance Request</p>)} </div>
     <div>
-      <button onClick={resetRequest}>Reset Maintenance</button>
+      {(machineTime == 0) && <button onClick={resetRequest}>Reset Maintenance</button>}
     </div>
   </div>
   )
