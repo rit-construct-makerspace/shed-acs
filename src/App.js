@@ -90,11 +90,13 @@ const App = () => {
       setUidInput('');
     }
     else {
-      if (userOverride === ""){
+      // New user wants to override machine
+      if (userOverride === "" || userOverride !== validUid){
         setUserOverride(validUid)
-        setInUse("Machine in Use => Scan card again to override user")
+        setInUse("Machine in Use => " + validUid + " scan again for override")
       }
-      else {
+      // New user scanned card twice
+      else if (userOverride === validUid) {
         logoutUID()
         sendQuery(userOverride)
       }
