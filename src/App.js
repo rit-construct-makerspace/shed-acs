@@ -45,8 +45,11 @@ const App = () => {
   //state contains current user
   const [currUser, setUser] = useState('')
 
+  //state contains current user
+  const [userOverride, setUserOverride] = useState('')
+
   //Count time user is logged in
-  const [timeCount, setTimeCount] = useState(USER_TIME_FRAME)
+  const [userTime, setUserTime] = useState(USER_TIME_FRAME)
   
   //Machine Maintenance time
   const [machineTime, setMachineTime] = useState(MACHINE_TIME_FRAME)
@@ -55,26 +58,47 @@ const App = () => {
   This function is called every time the uid-textbox is updated
   */
   const checkUid = (uidTemp) => {
-    /*only perform update if no current user*/
-    if (currUser === "") 
-    {
-      setUidInput(uidTemp)
-      if(uidTemp[0] === ";" && uidInput.length === UNFORMATTED_MAG_UID_LENGTH)
-      { 
-        const validUid = uidTemp.slice(1, 10)
-        sendQuery(validUid);
+    setUidInput(uidTemp)//echo uid to textbox
+    //check for valid input
+    if(uidTemp[0] === ";" && uidInput.length === UNFORMATTED_MAG_UID_LENGTH)
+    { 
+      ProccessUID(uidTemp.slice(1, 10))
+    }
+    else if(uidTemp[0] === "0" && uidInput.length === UNFORMATTED_RFID_UID_LENGTH)
+    { 
+      ProccessUID(uidTemp.slice(1, 10))
+    }
+    else if (uidTemp[0] !== ";" &&  uidTemp[0] !== "0" && 
+      uidInput.length === UNFORMATTED_RFID_UID_LENGTH){
+      setUidInput('');
+      setOutput("Current User: " + currUser)
+    }
+  }
+
+  /* 
+  This function process the university ID
+    if no current user, set user
+    else if current user rescans card, reset logout timer
+    else process new user overide
+  */
+  function ProccessUID(validUid){
+    if (currUser === ""){ 
+      sendQuery(validUid)
+    }
+    else if (validUid === currUser){
+      setUserTime(USER_TIME_FRAME)
+      setUidInput('');
+    }
+    else {
+      if (userOverride === ""){
+        setUserOverride(validUid)
+        setInUse("Machine in Use => Scan card again to override user")
       }
-      else if(uidTemp[0] === "0" && uidInput.length === UNFORMATTED_RFID_UID_LENGTH)
-      { 
-        const validUid = uidTemp.slice(1, 10)
-        sendQuery(validUid);
+      else {
+        logoutUID()
+        sendQuery(userOverride)
       }
-      else if (uidTemp[0] !== ";" &&  uidTemp[0] !== "0" && 
-        uidInput.length === UNFORMATTED_RFID_UID_LENGTH){
-        setUidInput('');
-        setOutput("last uid swiped: Invalid")
-        setInUse("")
-      }
+      setUidInput('');
     }
   }
 
@@ -109,9 +133,10 @@ const App = () => {
   */
   function logoutUID() {
     setUser("")
+    setUserOverride("")
     setOutput("")
     setInUse("")
-    setTimeCount(USER_TIME_FRAME)
+    setUserTime(USER_TIME_FRAME)
   }
 
   function resetRequest(){
@@ -122,7 +147,7 @@ const App = () => {
     // create a interval and get the id
     const secInterval = setInterval(() => {
       if (currUser !== "") {
-        setTimeCount((timeCount != 0) ? ((prevTime) => prevTime - 1) : 0);
+        setUserTime((userTime != 0) ? ((prevTime) => prevTime - 1) : 0);
         setMachineTime((machineTime != 0) ? ((prevTime) => prevTime - 1) : 0);
       }
     }, 1000);
@@ -131,10 +156,10 @@ const App = () => {
   }, [currUser]);
 
   useEffect(() => {
-    if (timeCount === 0) {
+    if (userTime === 0) {
       logoutUID()
     }
-  }, [timeCount]);
+  }, [userTime]);
 
   return(
   <div className="acs-parent">
@@ -147,11 +172,13 @@ const App = () => {
     <div className="uid-logout">
       {inUse.length > 0 ? (<p>{inUse}</p>) : (<p>No One Here</p>)}
     </div>
-    <div> {timeCount > 0 ? (<p>{timeCount}</p>) : (<p>Timed Out</p>)} </div>
-    <div> {machineTime > 0 ? (<p>{machineTime}</p>) : (<p>Maintenance Request</p>)} </div>
-    <div>
-      {(machineTime == 0) && <button onClick={resetRequest}>Reset Maintenance</button>}
-    </div>
+    <div> {userTime > 0 ? (<p>{userTime}</p>) : (<p>Timed Out</p>)} </div>
+    <div> {machineTime > 0 ? (<p>{machineTime}</p>) : (
+      <div>
+        <p>Maintenance Request</p>
+        <button onClick={resetRequest}>Reset Maintenance</button>
+      </div>
+    )} </div>
   </div>
   )
 }
