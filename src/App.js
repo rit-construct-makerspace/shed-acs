@@ -55,20 +55,6 @@ const App = () => {
   //Machine Maintenance time
   const [machineTime, setMachineTime] = useState(MACHINE_TIME_FRAME)
 
-  //gpio
-  const Gpio = require('onoff').Gpio;
-  const led = new Gpio('17', 'out');
-// set BCM 4 pin as 'output'
-const ledOut = new Gpio( '4', 'out' );
-
-// current LED state
-let isLedOn = false;
-
-// run a infinite interval
-setInterval( () => {
-  ledOut.writeSync( isLedOn ? 0 : 1 ); // provide 1 or 0 
-  isLedOn = !isLedOn; // toggle state
-}, 3000 ); // 3s
   /*
   This function is called every time the uid-textbox is updated
   */
@@ -143,7 +129,6 @@ setInterval( () => {
     setOutput("Current User: " + validUid)
     setUser(validUid)
     setInUse("Machine in Use")
-    led.writeSync(1);
   }
 
   /*
@@ -155,7 +140,6 @@ setInterval( () => {
     setOutput("")
     setInUse("")
     setUserTime(USER_TIME_FRAME)
-    led.writeSync(0);
   }
 
   function resetRequest(){
