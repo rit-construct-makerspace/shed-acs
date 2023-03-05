@@ -40,6 +40,7 @@ const App = () => {
   */
   const [output, setOutput] = useState('')
 
+  //machine state
   const [inUse, setInUse] = useState('')
   
   //state contains current user
@@ -149,13 +150,13 @@ const App = () => {
     // create a interval and get the id
     const secInterval = setInterval(() => {
       if (currUser !== "") {
-        setUserTime((userTime != 0) ? ((prevTime) => prevTime - 1) : 0);
-        setMachineTime((machineTime != 0) ? ((prevTime) => prevTime - 1) : 0);
+        setUserTime((userTime !== 0) ? ((prevTime) => prevTime - 1) : 0);
+        setMachineTime((machineTime !== 0) ? ((prevTime) => prevTime - 1) : 0);
       }
     }, 1000);
     // clear out the interval using it id when unmounting the component
     return () => clearInterval(secInterval);
-  }, [currUser]);
+  }, [currUser, machineTime, userTime]);
 
   useEffect(() => {
     if (userTime === 0) {
@@ -163,24 +164,35 @@ const App = () => {
     }
   }, [userTime]);
 
+  const activeMachineStyle = {
+    color: "black",
+    backgroundColor: "Crimson",
+    padding: "100px",
+  }
+
+  const inactiveMachineStyle = {
+    color: "black",
+    backgroundColor: "LimeGreen",
+    padding: "100px",
+  }
+
   return(
-  <div className="acs-parent">
+  <div className="acs-parent" style={currUser === "" ? inactiveMachineStyle : activeMachineStyle}>
     <div className="uid-textbox">
       <input value={uidInput} onChange={(event) => checkUid(event.target.value)} />
     </div>
     <div className="server-response">
       {output.length > 0 ? (<p>{output}</p>) : (<p>Swipe or tap ID</p>)}
     </div>  
-    <div className="uid-logout">
-      {inUse.length > 0 ? (<p>{inUse}</p>) : (<p>No One Here</p>)}
-    </div>
+    <div> {inUse.length > 0 ? (<p>{inUse}</p>) : (<p>No One Here</p>)} </div>
     <div> {userTime > 0 ? (<p>{userTime}</p>) : (<p>Timed Out</p>)} </div>
     <div> {machineTime > 0 ? (<p>{machineTime}</p>) : (
       <div>
         <p>Maintenance Request</p>
         <button onClick={resetRequest}>Reset Maintenance</button>
       </div>
-    )} </div>
+      )} 
+    </div>
   </div>
   )
 }
