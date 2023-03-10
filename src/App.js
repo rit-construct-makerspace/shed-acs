@@ -40,13 +40,17 @@ const App = () => {
   */
   const [output, setOutput] = useState('')
 
+  //machine state
   const [inUse, setInUse] = useState('')
   
   //state contains current user
   const [currUser, setUser] = useState('')
 
+  //state contains current user
+  const [userOverride, setUserOverride] = useState('')
+
   //Count time user is logged in
-  const [timeCount, setTimeCount] = useState(USER_TIME_FRAME)
+  const [userTime, setUserTime] = useState(USER_TIME_FRAME)
   
   //Machine Maintenance time
   const [machineTime, setMachineTime] = useState(MACHINE_TIME_FRAME)
@@ -55,26 +59,51 @@ const App = () => {
   This function is called every time the uid-textbox is updated
   */
   const checkUid = (uidTemp) => {
-    /*only perform update if no current user*/
-    if (currUser === "") 
-    {
-      setUidInput(uidTemp)
-      if(uidTemp[0] === ";" && uidInput.length === UNFORMATTED_MAG_UID_LENGTH)
-      { 
-        const validUid = uidTemp.slice(1, 10)
-        sendQuery(validUid);
+    setUidInput(uidTemp)//echo uid to textbox
+    //check for valid input
+    if(uidTemp[0] === ";" && uidInput.length === UNFORMATTED_MAG_UID_LENGTH)
+    { 
+      ProccessUID(uidTemp.slice(1, 10))
+    }
+    else if(uidTemp[0] === "0" && uidInput.length === UNFORMATTED_RFID_UID_LENGTH)
+    { 
+      ProccessUID(uidTemp.slice(1, 10))
+    }
+    else if (uidTemp[0] !== ";" &&  uidTemp[0] !== "0" && 
+      uidInput.length === UNFORMATTED_RFID_UID_LENGTH){
+      setUidInput('');
+      setOutput("Current User: " + currUser)
+    }
+  }
+
+  /* 
+  This function process the university ID
+    if no current user, set user
+    else if current user rescans card, reset logout timer
+    else process new user overide
+  */
+  function ProccessUID(validUid){
+    if (currUser === ""){ 
+      sendQuery(validUid)
+    }
+    else if (validUid === currUser){
+      setUserTime(USER_TIME_FRAME)
+      setUidInput('');
+      setUserOverride("")
+      setInUse("Machine in Use")
+    }
+    else {
+      // New user wants to override machine
+      if (userOverride === "" || userOverride !== validUid){
+        setUserOverride(validUid)
+        setInUse("Machine in Use => " + validUid + " scan again for override")
       }
-      else if(uidTemp[0] === "0" && uidInput.length === UNFORMATTED_RFID_UID_LENGTH)
-      { 
-        const validUid = uidTemp.slice(1, 10)
-        sendQuery(validUid);
+      // New user scanned card twice
+      else if (userOverride === validUid) {
+        logoutUID()
+        sendQuery(userOverride)
       }
-      else if (uidTemp[0] !== ";" &&  uidTemp[0] !== "0" && 
-        uidInput.length === UNFORMATTED_RFID_UID_LENGTH){
-        setUidInput('');
-        setOutput("last uid swiped: Invalid")
-        setInUse("")
-      }
+      setUidInput('');
     }
   }
 
@@ -109,48 +138,84 @@ const App = () => {
   */
   function logoutUID() {
     setUser("")
+    setUserOverride("")
     setOutput("")
     setInUse("")
-    setTimeCount(USER_TIME_FRAME)
+    setUserTime(USER_TIME_FRAME)
   }
 
+  /*
+  reset Maintenance Request Timer
+  */
   function resetRequest(){
     setMachineTime(MACHINE_TIME_FRAME)
   }
 
+  /*
+  Timers count down while exists a current user
+  */
   useEffect(() => {
     // create a interval and get the id
     const secInterval = setInterval(() => {
       if (currUser !== "") {
-        setTimeCount((timeCount != 0) ? ((prevTime) => prevTime - 1) : 0);
-        setMachineTime((machineTime != 0) ? ((prevTime) => prevTime - 1) : 0);
+        setUserTime((userTime !== 0) ? ((prevTime) => prevTime - 1) : 0);
+        setMachineTime((machineTime !== 0) ? ((prevTime) => prevTime - 1) : 0);
       }
     }, 1000);
     // clear out the interval using it id when unmounting the component
     return () => clearInterval(secInterval);
-  }, [currUser]);
+  }, [currUser, machineTime, userTime]);
 
+  /*
+  Auto Logout Current user when userTime == 0
+  */
   useEffect(() => {
-    if (timeCount === 0) {
+    if (userTime === 0) {
       logoutUID()
     }
-  }, [timeCount]);
+  }, [userTime]);
+
+  const activeMachineStyle = {
+    color: "white",
+    backgroundColor: "Crimson",
+    padding: "100px",
+  }
+
+  const inactiveMachineStyle = {
+    color: "white",
+    backgroundColor: "LimeGreen",
+    padding: "100px",
+  }
+
+  function setVisual(){
+    if (currUser === ""){
+      return inactiveMachineStyle
+    }
+    else if (userTime < 5){
+      return userTime%2 === 0 ? inactiveMachineStyle : activeMachineStyle
+    }
+    else {
+      return activeMachineStyle
+    }
+    //return currUser === "" ? inactiveMachineStyle : activeMachineStyle
+  }
 
   return(
-  <div className="acs-parent">
+  <div className="acs-parent" style={setVisual()}>
     <div className="uid-textbox">
       <input value={uidInput} onChange={(event) => checkUid(event.target.value)} />
     </div>
     <div className="server-response">
       {output.length > 0 ? (<p>{output}</p>) : (<p>Swipe or tap ID</p>)}
     </div>  
-    <div className="uid-logout">
-      {inUse.length > 0 ? (<p>{inUse}</p>) : (<p>No One Here</p>)}
-    </div>
-    <div> {timeCount > 0 ? (<p>{timeCount}</p>) : (<p>Timed Out</p>)} </div>
-    <div> {machineTime > 0 ? (<p>{machineTime}</p>) : (<p>Maintenance Request</p>)} </div>
-    <div>
-      {(machineTime == 0) && <button onClick={resetRequest}>Reset Maintenance</button>}
+    <div> {inUse.length > 0 ? (<p>{inUse}</p>) : (<p>No One Here</p>)} </div>
+    <div> {userTime > 0 ? (<p>{userTime}</p>) : (<p>Timed Out</p>)} </div>
+    <div> {machineTime > 0 ? (<p>{machineTime}</p>) : (
+      <div>
+        <p>Maintenance Request</p>
+        <button onClick={resetRequest}>Reset Maintenance</button>
+      </div>
+      )} 
     </div>
   </div>
   )
