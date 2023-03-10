@@ -89,6 +89,8 @@ const App = () => {
     else if (validUid === currUser){
       setUserTime(USER_TIME_FRAME)
       setUidInput('');
+      setUserOverride("")
+      setInUse("Machine in Use")
     }
     else {
       // New user wants to override machine
@@ -142,10 +144,16 @@ const App = () => {
     setUserTime(USER_TIME_FRAME)
   }
 
+  /*
+  reset Maintenance Request Timer
+  */
   function resetRequest(){
     setMachineTime(MACHINE_TIME_FRAME)
   }
 
+  /*
+  Timers count down while exists a current user
+  */
   useEffect(() => {
     // create a interval and get the id
     const secInterval = setInterval(() => {
@@ -158,6 +166,9 @@ const App = () => {
     return () => clearInterval(secInterval);
   }, [currUser, machineTime, userTime]);
 
+  /*
+  Auto Logout Current user when userTime == 0
+  */
   useEffect(() => {
     if (userTime === 0) {
       logoutUID()
@@ -165,19 +176,32 @@ const App = () => {
   }, [userTime]);
 
   const activeMachineStyle = {
-    color: "black",
+    color: "white",
     backgroundColor: "Crimson",
     padding: "100px",
   }
 
   const inactiveMachineStyle = {
-    color: "black",
+    color: "white",
     backgroundColor: "LimeGreen",
     padding: "100px",
   }
 
+  function setVisual(){
+    if (currUser === ""){
+      return inactiveMachineStyle
+    }
+    else if (userTime < 5){
+      return userTime%2 === 0 ? inactiveMachineStyle : activeMachineStyle
+    }
+    else {
+      return activeMachineStyle
+    }
+    //return currUser === "" ? inactiveMachineStyle : activeMachineStyle
+  }
+
   return(
-  <div className="acs-parent" style={currUser === "" ? inactiveMachineStyle : activeMachineStyle}>
+  <div className="acs-parent" style={setVisual()}>
     <div className="uid-textbox">
       <input value={uidInput} onChange={(event) => checkUid(event.target.value)} />
     </div>
