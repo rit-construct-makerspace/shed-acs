@@ -137,6 +137,9 @@ const App = () => {
     setOutput("Current User: " + validUid)
     setUser(validUid)
     setInUse("Machine in Use")
+    document.body.style.background = "Crimson";
+    document.getElementById("UIDinput").style.background = "Crimson";
+    document.getElementById("UIDinput").style.color = "Crimson";
   }
 
   /*
@@ -148,6 +151,11 @@ const App = () => {
     setOutput("")
     setInUse("")
     setUserTime(USER_TIME_FRAME)
+    document.body.style.background = "LimeGreen";
+    document.body.style.animation = "flash 0s";
+    document.getElementById("UIDinput").style.background = "LimeGreen";
+    document.getElementById("UIDinput").style.color = "LimeGreen";
+    document.getElementById("UIDinput").style.animation = "flash 0s";
   }
 
   /*
@@ -180,6 +188,8 @@ const App = () => {
       logoutUID()
     }
     if (userTime === MINUTES/2){
+      document.body.style.animation = "flash 2s infinite";
+      document.getElementById("UIDinput").style.animation = "flash 2s infinite";
     }
     let min = Math.floor(userTime/60);
     let sec = userTime%60;
