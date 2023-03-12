@@ -1,0 +1,45 @@
+body {
+    background: LimeGreen;
+    animation-direction: alternate;
+    text-align: center;
+}
+
+@keyframes flash {
+    from {
+        background-color: LimeGreen;
+        color: LimeGreen;}
+    to {
+        background-color: Crimson;
+        color: Crimson;}
+}
+
+div.uid-textbox{
+    width: 20px;
+    height: 18px;
+    background-color: Blue;
+}
+
+input {
+    color:LimeGreen;
+    background-color:LimeGreen;
+    border: none;
+    outline: none;
+    position: absolute;
+    left: 20px;
+}
+
+div.server-response{
+    color:black;
+}
+
+div.machine-use{
+    color:black;
+}
+
+div.user-time {
+    color:black;
+}
+
+div.machine-time {
+    display: none;
+}
