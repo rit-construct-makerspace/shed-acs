@@ -22,7 +22,7 @@ const App = () => {
   //constant for time
   const MINUTES = 60                  // 1 min = 60 sec
   const HOUR = 60*MINUTES             // 1 hr = 60 min
-  const USER_TIME_FRAME = 1*MINUTES  // 10 minutes
+  const USER_TIME_FRAME = 10*MINUTES  // 10 minutes
   const MACHINE_TIME_FRAME = 1*HOUR   // 1 hour
   
   //The ID of the machine this ACS BOX is attached to
@@ -187,7 +187,7 @@ const App = () => {
     if (userTime === 0) {
       logoutUID()
     }
-    if (userTime === MINUTES/2){
+    if (userTime === MINUTES){
       document.body.style.animation = "flash 2s infinite";
       document.getElementById("UIDinput").style.animation = "flash 2s infinite";
     }
@@ -209,7 +209,6 @@ const App = () => {
     <div className="user-time"> {userTime > 0 ? (<p>{timeMinute}:{timeSecond}</p>) : (<p>Timed Out</p>)} </div>
     <div> {machineTime > 0 ? (<div className="machine-time"><p>{machineTime}</p></div>) : (
       <div>
-        <p>Maintenance Request</p>
         <button onClick={resetRequest}>Reset Maintenance</button>
       </div>
       )} 

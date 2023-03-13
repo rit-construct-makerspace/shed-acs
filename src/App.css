@@ -2,6 +2,8 @@ body {
     background: LimeGreen;
     animation-direction: alternate;
     text-align: center;
+    font-weight: bold;
+    font-size: 40px;
 }
 
 @keyframes flash {
@@ -29,15 +31,15 @@ input {
 }
 
 div.server-response{
-    color:black;
+    color:White;
 }
 
 div.machine-use{
-    color:black;
+    color:White;
 }
 
 div.user-time {
-    color:black;
+    color:White;
 }
 
 div.machine-time {
