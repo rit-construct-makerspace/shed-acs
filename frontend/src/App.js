@@ -1,10 +1,11 @@
 import React, {useState, useEffect} from "react"
 import axios from "axios";
+import "./App.css"
 
 const App = () => {
 
   //the server's url
-  const url = "http://localhost:3000/graphql"
+  const url = "https://localhost:3000/graphql"
 
   //gpio local backend url
   const gpioBackend = "http://localhost:3001/pin"
@@ -22,8 +23,10 @@ const App = () => {
   const UNFORMATTED_RFID_UID_LENGTH = 9
 
   //constant for time
-  const USER_TIME_FRAME = 10
-  const MACHINE_TIME_FRAME = 20
+  const MINUTES = 60                  // 1 min = 60 sec
+  const HOUR = 60*MINUTES             // 1 hr = 60 min
+  const USER_TIME_FRAME = 10*MINUTES  // 10 minutes
+  const MACHINE_TIME_FRAME = 1*HOUR   // 1 hour
   
   //The ID of the machine this ACS BOX is attached to
   const EQUIPMENT_ID = 1 //CNC machine in test db
@@ -54,6 +57,9 @@ const App = () => {
 
   //Count time user is logged in
   const [userTime, setUserTime] = useState(USER_TIME_FRAME)
+  const [timeSecond, setSecond] = useState("00")
+  const [timeMinute, setMinute] = useState("00")
+  //const [timeHour, setHour] = useState(USER_TIME_FRAME)
   
   //Machine Maintenance time
   const [machineTime, setMachineTime] = useState(MACHINE_TIME_FRAME)
@@ -122,13 +128,12 @@ const App = () => {
       uid: validUid
     }
 
-    /*axios.post(url, {
+    axios.post(url, {
       graphQLQuery,
       vars
     })
     .then(resp => console.log(resp.data))
     .catch(error =>console.error(error))
-    */
 
     //tell gpioBackend to turn on the relay
     const pinObj = {
@@ -142,6 +147,9 @@ const App = () => {
     setOutput("Current User: " + validUid)
     setUser(validUid)
     setInUse("Machine in Use")
+    document.body.style.background = "Crimson";
+    document.getElementById("UIDinput").style.background = "Crimson";
+    document.getElementById("UIDinput").style.color = "Crimson";
   }
 
   /*
@@ -160,6 +168,11 @@ const App = () => {
     setOutput("")
     setInUse("")
     setUserTime(USER_TIME_FRAME)
+    document.body.style.background = "LimeGreen";
+    document.body.style.animation = "flash 0s";
+    document.getElementById("UIDinput").style.background = "LimeGreen";
+    document.getElementById("UIDinput").style.color = "LimeGreen";
+    document.getElementById("UIDinput").style.animation = "flash 0s";
   }
 
   /*
@@ -191,46 +204,28 @@ const App = () => {
     if (userTime === 0) {
       logoutUID()
     }
+    if (userTime === MINUTES){
+      document.body.style.animation = "flash 2s infinite";
+      document.getElementById("UIDinput").style.animation = "flash 2s infinite";
+    }
+    let min = Math.floor(userTime/60);
+    let sec = userTime%60;
+    setSecond(sec > 9 ? sec : '0' + sec);
+    setMinute(min > 9 ? min : '0' + min);
   }, [userTime]);
 
-  const activeMachineStyle = {
-    color: "white",
-    backgroundColor: "Crimson",
-    padding: "100px",
-  }
-
-  const inactiveMachineStyle = {
-    color: "white",
-    backgroundColor: "LimeGreen",
-    padding: "100px",
-  }
-
-  function setVisual(){
-    if (currUser === ""){
-      return inactiveMachineStyle
-    }
-    else if (userTime < 5){
-      return userTime%2 === 0 ? inactiveMachineStyle : activeMachineStyle
-    }
-    else {
-      return activeMachineStyle
-    }
-    //return currUser === "" ? inactiveMachineStyle : activeMachineStyle
-  }
-
   return(
-  <div className="acs-parent" style={setVisual()}>
+  <div className="acs-parent">
     <div className="uid-textbox">
-      <input value={uidInput} onChange={(event) => checkUid(event.target.value)} />
+      <input id="UIDinput" autofocus="autofocus" value={uidInput} onChange={(event) => checkUid(event.target.value)} />
     </div>
     <div className="server-response">
       {output.length > 0 ? (<p>{output}</p>) : (<p>Swipe or tap ID</p>)}
-    </div>  
-    <div> {inUse.length > 0 ? (<p>{inUse}</p>) : (<p>No One Here</p>)} </div>
-    <div> {userTime > 0 ? (<p>{userTime}</p>) : (<p>Timed Out</p>)} </div>
-    <div> {machineTime > 0 ? (<p>{machineTime}</p>) : (
+    </div>
+    <div className="machine-use"> {inUse.length > 0 ? (<p>{inUse}</p>) : (<p>Machine Ready</p>)} </div>
+    <div className="user-time"> {userTime > 0 ? (<p>{timeMinute}:{timeSecond}</p>) : (<p>Timed Out</p>)} </div>
+    <div> {machineTime > 0 ? (<div className="machine-time"><p>{machineTime}</p></div>) : (
       <div>
-        <p>Maintenance Request</p>
         <button onClick={resetRequest}>Reset Maintenance</button>
       </div>
       )} 
