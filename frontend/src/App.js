@@ -7,6 +7,9 @@ const App = () => {
   //the server's url
   const url = "https://localhost:3000/graphql"
 
+  //gpio local backend url
+  const gpioBackend = "http://localhost:3001/pin"
+
   const graphQLQuery = `
     query ($equipmentID: ID!, $uid: ID!) {
       equipment(id: $equipmentID) {
@@ -132,6 +135,13 @@ const App = () => {
     .then(resp => console.log(resp.data))
     .catch(error =>console.error(error))
 
+    //tell gpioBackend to turn on the relay
+    const pinObj = {
+      state: 1
+    }
+
+    axios.post(gpioBackend, pinObj)
+
     //reset the uid textbox
     setUidInput('');
     setOutput("Current User: " + validUid)
@@ -146,6 +156,13 @@ const App = () => {
   remove current user
   */
   function logoutUID() {
+    
+    //tell gpioBackend to turn off the relay
+    const pinObj = {
+      state: 0
+    }
+    axios.post(gpioBackend, pinObj)
+    
     setUser("")
     setUserOverride("")
     setOutput("")
