@@ -5,18 +5,16 @@ import "./App.css"
 const App = () => {
 
   //the server's url
-  const url = "https://localhost:3000/graphql"
+  const url = "https://makerspace.herokuapp.com/graphql"
 
   //gpio local backend url
   const gpioBackend = "http://localhost:3001/pin"
 
-  const graphQLQuery = `
-    query ($equipmentID: ID!, $uid: ID!) {
-      equipment(id: $equipmentID) {
-        hasAccess(uid: $uid)
-      }
+  const graphQLQuery = `query HasAccess($id:ID!, $uid:String) {
+    equipment(id: $id){
+      hasAccess(uid: $uid)
     }
-  `;
+  }`;
 
   //constant length of a university ID num
   const UNFORMATTED_MAG_UID_LENGTH = 15
@@ -123,17 +121,18 @@ const App = () => {
   */
   const sendQuery = (validUid) => {
     
-    const vars = {
-      EQUIPMENT_ID: 1,
-      uid: validUid
+    const body =  { 
+        query: graphQLQuery, 
+        variables: {"id": EQUIPMENT_ID, "uid": validUid}
     }
-
-    axios.post(url, {
-      graphQLQuery,
-      vars
-    })
-    .then(resp => console.log(resp.data))
-    .catch(error =>console.error(error))
+    const options = {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }
+    axios.post(url, body, options)
+      .then(resp => console.log(resp.data))
+      .catch(error =>console.error(error))
 
     //tell gpioBackend to turn on the relay
     const pinObj = {
