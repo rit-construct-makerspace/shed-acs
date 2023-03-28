@@ -4,7 +4,7 @@ const cors = require('cors');
 const app = express();
 const port = 3001;
 const relay = new GPIO(6, 'out');
-const button = new GPIO(7, 'in', 'rising', {debounceTimeout: 10}); //E stop button
+const button = new GPIO(26, 'in', 'rising', {debounceTimeout: 10}); //E stop button
 
 let frontend = null; //frontend connection object (EventSource)
 
@@ -15,6 +15,7 @@ button.watch((error, value) => {
     if(error){
         console.log(error);
     }
+    console.log('e stop pressed');	
     sendSSE({message: 'E stop pressed'});
 })
 
@@ -45,15 +46,16 @@ const connectFrontend = (req, res) => {
     req.on('close', () => {
         //log server->frontend connection broke
         frontend = null;
-        retryConnection();
     });
 }
 
+app.get('/pin', (req, resp) => {
+    if(frontend === null){
+    	connectFrontend(req, resp);
+    }
+})
 
 app.post('/pin', (req, resp) => {
-    if(frontend === null){
-        connectFrontend(req, resp);    
-    }
     console.log(`relay becomes ${req.body.state}`)
     relay.writeSync(req.body.state);
     //log success / fail of pin change

@@ -227,6 +227,7 @@ const App = () => {
     const eventSource = new EventSource(gpioBackend);
     eventSource.onmessage = (event) => {
       //log frontend e stop msg received
+      console.log('received e stop msg')
       setEStopPressed(true);
     };
   }, [])
