@@ -15,7 +15,8 @@ button.watch((error, value) => {
     if(error){
         console.log(error);
     }
-    console.log('e stop pressed');	
+    console.log('E stop pressed');
+    relay.writeSync(0);	
     sendSSE({message: 'E stop pressed'});
 })
 
