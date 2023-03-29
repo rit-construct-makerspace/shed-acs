@@ -71,7 +71,9 @@ const App = () => {
   This function is called every time the uid-textbox is updated
   */
   const checkUid = (uidTemp) => {
-    setUidInput(uidTemp)//echo uid to textbox
+    if (!eStopPressed){
+      setUidInput(uidTemp)//echo uid to textbox
+    }
     //check for valid input
     if(uidTemp[0] === ";" && uidInput.length === UNFORMATTED_MAG_UID_LENGTH)
     { 
@@ -229,6 +231,7 @@ const App = () => {
       //log frontend e stop msg received
       console.log('received e stop msg')
       setEStopPressed(true);
+      logoutUID()
     };
   }, [])
 
