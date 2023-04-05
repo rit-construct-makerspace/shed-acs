@@ -24,7 +24,7 @@ const App = () => {
   //constant for time
   const MINUTES = 60                  // 1 min = 60 sec
   const HOUR = 60*MINUTES             // 1 hr = 60 min
-  const USER_TIME_FRAME = 1*MINUTES/30// 
+  const USER_TIME_FRAME = 1*MINUTES/12// 
   const MACHINE_TIME_FRAME = 1*HOUR   // 1 hour
   
   //The ID of the machine this ACS BOX is attached to
@@ -87,7 +87,7 @@ const App = () => {
     else if (uidTemp[0] !== ";" &&  uidTemp[0] !== "0" && 
       uidInput.length === UNFORMATTED_RFID_UID_LENGTH){
       setUidInput('');
-      setOutput("Current User: " + currUser)
+      setOutput("Invalid Swipe")
     }
   }
 
@@ -113,7 +113,7 @@ const App = () => {
       // New user wants to override machine
       if (userOverride === "" || userOverride !== validUid){
         setUserOverride(validUid)
-        setInUse("Machine in Use => " + validUid + " scan again for override")
+        setInUse("Machine in Use => Swipe Again to Override User")
       }
       // New user scanned card twice
       else if (userOverride === validUid) {
@@ -153,10 +153,14 @@ const App = () => {
     }
 
     axios.post(gpioBackend, pinObj)
+      .then(response => {
+        //if(response.ok) {console.log('Relay Change 1 Success')}
+	console.log('Relay Change 1 Success ', Boolean(response.data))
+      });
     
     //reset the uid textbox
     setUidInput('');
-    setOutput("Current User: " + validUid)
+    setOutput("User Logged In")
     setUser(validUid)
     setInUse("Machine in Use")
     document.body.style.background = "Crimson";
@@ -177,6 +181,10 @@ const App = () => {
       state: 0
     }
     axios.post(gpioBackend, pinObj)
+      .then(response => {
+        //if(response.ok) {console.log('Relay Change 0 Success')}
+	console.log('Relay Change 0 Success ', Boolean(response.data))
+      });
     
     setUser("")
     setUserOverride("")
@@ -191,8 +199,11 @@ const App = () => {
   }
 
   function writeToBack(msg){
-    //axios.post(writeBackend, {data: msg})
-     // .then()
+    axios.post(writeBackend, {data: msg})
+      .then(response => {
+        //if(response.ok) {console.log('Write Success')}
+	console.log('Write Success ', Boolean(response.data))
+      });
      // .catch()
   }
 
@@ -225,7 +236,7 @@ const App = () => {
     if (userTime === 0) {
       logoutUID()
     }
-    if (userTime === MINUTES/10){
+    if (userTime === MINUTES){
       document.body.style.animation = "flash 2s infinite";
       document.getElementById("UIDinput").style.animation = "flash 2s infinite";
     }
@@ -248,6 +259,7 @@ const App = () => {
       console.log('received e stop msg')
       setEStopPressed(true);
       logoutUID()
+      setTimeout(()=> setEStopPressed(false), 2000)
     };
   }, [])
 
@@ -257,7 +269,7 @@ const App = () => {
       <input id="UIDinput" autoFocus="autofocus" value={uidInput} onChange={(event) => checkUid(event.target.value)} />
     </div>
     <div className="server-response">
-      {output.length > 0 ? (<p>{output}</p>) : (<p>Swipe or tap ID</p>)}
+      {output.length > 0 ? (<p>{output}</p>) : (<p>Swipe or Tap ID</p>)}
     </div>
     <div className="machine-use"> {inUse.length > 0 ? (<p>{inUse}</p>) : (<p>Machine Ready</p>)} </div>
     <div className="user-time"> {userTime > 0 ? (<p>{timeMinute}:{timeSecond}</p>) : (<p>Timed Out</p>)} </div>

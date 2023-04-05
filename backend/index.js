@@ -17,9 +17,8 @@ button.watch((error, value) => {
         console.log(error);
     }
     console.log('E stop pressed');
-    writeToFile('Backend Estop Press\n');
+    writeToFile('Estop Press in Backend\n');
     relay.writeSync(0);
-    writeToFile(`relay becomes 0\n`)
     //setTimeout(() => relay.writeSync(0), 2000);
     sendSSE({message: 'E stop pressed'});
 })
@@ -30,11 +29,11 @@ const sendSSE = (data) =>
     if(frontend !== null){
     
         frontend.res.write(`data: ${JSON.stringify(data)}\n\n`);
-        writeToFile('Sent to Frontend Success\n')
+        writeToFile('Sent Estop to Frontend Success\n')
 	//write to logger ('successful send to frontend')
     }
     else{
-        writeToFile('Sent to Frontend Fail\n')
+        writeToFile('Sent Estop to Frontend Fail\n')
         //write to logger ('failed to send to frontend')
     }
     
@@ -49,12 +48,12 @@ const connectFrontend = (req, res) => {
 
     frontend = {req, res}; //initialize the global 'frontend' variable
     writeToFile('Frontend Connection Established\n')
-    console.log('Frontend Connection Established\n')
+    //console.log('Frontend Connection Established')
     //log server->frontend connection established
 
     req.on('close', () => {
         writeToFile('Frontend Connection Broke\n')
-        console.log('Frontend Connection Broke\n')
+        //console.log('Frontend Connection Broke')
         //log server->frontend connection broke
         frontend = null;
     });
@@ -62,12 +61,8 @@ const connectFrontend = (req, res) => {
 
 function writeToFile(data) {
     fs.open('log_file.txt', 'a', function(err, file) {
-	if (err) {
-	    console.error(err);
-	    return;
-	}
-	const buffer = Buffer.from(data);
-	fs.write(file, buffer, function(err) {
+	if (err) {console.error(err);}
+	fs.write(file, data, function(err) {
 	    if (err) {console.error(err);}
 	    fs.close(file, function(err){
 		if (err) {console.error(err);}
@@ -86,12 +81,16 @@ app.post('/pin', (req, resp) => {
     console.log(`relay becomes ${req.body.state}`)
     writeToFile(`relay becomes ${req.body.state}\n`)
     relay.writeSync(req.body.state);
+    resp.send("true")
+    //resp.status(200)
     //log success / fail of pin change
 })
 
-app.post('/writeToFile',(req, res) => {
+app.post('/writeToFile',(req, resp) => {
     console.log(req.body.data);
     writeToFile(req.body.data);
+    resp.send("true")
+    //resp.status(200)
 });
 
 const server = app.listen(port, () => {
