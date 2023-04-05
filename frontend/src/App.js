@@ -9,6 +9,7 @@ const App = () => {
 
   //gpio local backend url
   const gpioBackend = "http://localhost:3001/pin"
+  const writeBackend = "http://localhost:3001/writeToFile"
 
   const graphQLQuery = `query HasAccess($id:ID!, $uid:String) {
     equipment(id: $id){
@@ -23,7 +24,7 @@ const App = () => {
   //constant for time
   const MINUTES = 60                  // 1 min = 60 sec
   const HOUR = 60*MINUTES             // 1 hr = 60 min
-  const USER_TIME_FRAME = 10*MINUTES  // 10 minutes
+  const USER_TIME_FRAME = 1*MINUTES/30// 
   const MACHINE_TIME_FRAME = 1*HOUR   // 1 hour
   
   //The ID of the machine this ACS BOX is attached to
@@ -97,10 +98,12 @@ const App = () => {
     else process new user overide
   */
   function ProccessUID(validUid){
+    writeToBack("Card Swipped\n")
     if (currUser === ""){ 
       sendQuery(validUid)
     }
     else if (validUid === currUser){
+      writeToBack("\tADD TIME => " + validUid + "\n");
       setUserTime(USER_TIME_FRAME)
       setUidInput('');
       setUserOverride("")
@@ -114,6 +117,7 @@ const App = () => {
       }
       // New user scanned card twice
       else if (userOverride === validUid) {
+        writeToBack("\tUSER OVERRIDE => " + validUid + "\n")
         logoutUID()
         sendQuery(userOverride)
       }
@@ -140,28 +144,33 @@ const App = () => {
     axios.post(url, body, options)
       .then(resp => console.log(resp.data))
       .catch(error =>console.error(error))
-
+    
+    writeToBack("\tUser Logged: " + validUid + "\n")
+    
     //tell gpioBackend to turn on the relay
     const pinObj = {
       state: 1
     }
 
     axios.post(gpioBackend, pinObj)
-
+    
     //reset the uid textbox
     setUidInput('');
     setOutput("Current User: " + validUid)
     setUser(validUid)
     setInUse("Machine in Use")
     document.body.style.background = "Crimson";
+    document.body.style.animation = "flash 0s";
     document.getElementById("UIDinput").style.background = "Crimson";
     document.getElementById("UIDinput").style.color = "Crimson";
+    document.getElementById("UIDinput").style.animation = "flash 0s";
   }
 
   /*
   remove current user
   */
   function logoutUID() {
+    writeToBack("\tUser Out: " + currUser + "\n")
     
     //tell gpioBackend to turn off the relay
     const pinObj = {
@@ -179,6 +188,12 @@ const App = () => {
     document.getElementById("UIDinput").style.background = "LimeGreen";
     document.getElementById("UIDinput").style.color = "LimeGreen";
     document.getElementById("UIDinput").style.animation = "flash 0s";
+  }
+
+  function writeToBack(msg){
+    //axios.post(writeBackend, {data: msg})
+     // .then()
+     // .catch()
   }
 
   /*
@@ -210,7 +225,7 @@ const App = () => {
     if (userTime === 0) {
       logoutUID()
     }
-    if (userTime === MINUTES){
+    if (userTime === MINUTES/10){
       document.body.style.animation = "flash 2s infinite";
       document.getElementById("UIDinput").style.animation = "flash 2s infinite";
     }
@@ -228,6 +243,7 @@ const App = () => {
   useEffect(() => {
     const eventSource = new EventSource(gpioBackend);
     eventSource.onmessage = (event) => {
+      writeToBack("Frontent Recieve Estop Press \n")
       //log frontend e stop msg received
       console.log('received e stop msg')
       setEStopPressed(true);
