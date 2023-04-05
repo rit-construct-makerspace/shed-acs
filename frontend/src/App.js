@@ -33,6 +33,11 @@ const App = () => {
 
 
   /*
+  This state tracks whether the e stop button has been pressed
+  */
+  const [eStopPressed, setEStopPressed] = useState(false)
+
+  /*
   This piece of state contains the text currently
   dispalyed in uid-textbox
   */
@@ -66,7 +71,9 @@ const App = () => {
   This function is called every time the uid-textbox is updated
   */
   const checkUid = (uidTemp) => {
-    setUidInput(uidTemp)//echo uid to textbox
+    if (!eStopPressed){
+      setUidInput(uidTemp)//echo uid to textbox
+    }
     //check for valid input
     if(uidTemp[0] === ";" && uidInput.length === UNFORMATTED_MAG_UID_LENGTH)
     { 
@@ -213,10 +220,25 @@ const App = () => {
     setMinute(min > 9 ? min : '0' + min);
   }, [userTime]);
 
+  /*
+  This effect is called once at the start of the application
+  and sets up an EventSource to listen for e stop button press
+  events
+  */
+  useEffect(() => {
+    const eventSource = new EventSource(gpioBackend);
+    eventSource.onmessage = (event) => {
+      //log frontend e stop msg received
+      console.log('received e stop msg')
+      setEStopPressed(true);
+      logoutUID()
+    };
+  }, [])
+
   return(
   <div className="acs-parent">
     <div className="uid-textbox">
-      <input id="UIDinput" autofocus="autofocus" value={uidInput} onChange={(event) => checkUid(event.target.value)} />
+      <input id="UIDinput" autoFocus="autofocus" value={uidInput} onChange={(event) => checkUid(event.target.value)} />
     </div>
     <div className="server-response">
       {output.length > 0 ? (<p>{output}</p>) : (<p>Swipe or tap ID</p>)}
