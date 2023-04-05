@@ -4,7 +4,7 @@ const cors = require('cors');
 const app = express();
 const port = 3001;
 const relay = new GPIO(6, 'out');
-const button = new GPIO(26, 'in', 'rising', {debounceTimeout: 10}); //E stop button
+const button = new GPIO(26, 'in', 'falling', {debounceTimeout: 10}); //E stop button
 
 let frontend = null; //frontend connection object (EventSource)
 
