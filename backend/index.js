@@ -4,6 +4,14 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const port = 3001;
+
+const BOARD = "TinkerBoard";
+
+const pins = new Map([
+  ["TinkerBoard", [168,224]],
+  ["RaspberryPi", [6,26]]
+]);
+
 const relay = new GPIO(6, 'out');
 const button = new GPIO(26, 'in', 'falling', {debounceTimeout: 10}); //E stop button
 
