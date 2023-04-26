@@ -1,6 +1,6 @@
-import React, {useState, useEffect} from "react"
+import React, {useState, useEffect} from "react";
 import axios from "axios";
-import "./App.css"
+import "./App.css";
 
 const App = () => {
 
@@ -18,36 +18,26 @@ const App = () => {
   }`;
 
   //constant length of a university ID num
-  const UNFORMATTED_MAG_UID_LENGTH = 15
-  const UNFORMATTED_RFID_UID_LENGTH = 9
+  const UNFORMATTED_MAG_UID_LENGTH = 15   //i.e. ;XXXXXXXXXXXXXX
+  const UNFORMATTED_RFID_UID_LENGTH = 9   //i.e. 0XXXXXXXXX
 
   //constant for time
   const MINUTES = 60                  // 1 min = 60 sec
   const HOUR = 60*MINUTES             // 1 hr = 60 min
-  const USER_TIME_FRAME = 1*MINUTES/12// 
-  const MACHINE_TIME_FRAME = 1*HOUR   // 1 hour
+  const USER_TIME_FRAME = 1*MINUTES   // Time user has for machine use
+  const MACHINE_TIME_FRAME = 1*HOUR   // Time machine has before maintenance check
   
   //The ID of the machine this ACS BOX is attached to
   const EQUIPMENT_ID = 1 //CNC machine in test db
-
-  //graphQL stuff, not super sure how this works
-
-
-  /*
-  This state tracks whether the e stop button has been pressed
-  */
+  
+  //This state tracks whether the e stop button has been pressed
   const [eStopPressed, setEStopPressed] = useState(false)
-
-  /*
-  This piece of state contains the text currently
-  dispalyed in uid-textbox
-  */
+  
+  //This piece of state contains the text currently
+  //  dispalyed in uid-textbox
   const [uidInput, setUidInput] = useState('')
 
-  /*
-  This piece of state contains the text for the "User has access"
-  element
-  */
+  //This piece of state contains the text for the "User has access" element
   const [output, setOutput] = useState('')
 
   //machine state
@@ -68,67 +58,66 @@ const App = () => {
   //Machine Maintenance time
   const [machineTime, setMachineTime] = useState(MACHINE_TIME_FRAME)
 
-  /*
-  This function is called every time the uid-textbox is updated
-  */
+  /**This function is called every time the uid-textbox is updated*/
   const checkUid = (uidTemp) => {
     if (!eStopPressed){
-      setUidInput(uidTemp)//echo uid to textbox
+      setUidInput(uidTemp); //echo uid to textbox
     }
     //check for valid input
-    if(uidTemp[0] === ";" && uidInput.length === UNFORMATTED_MAG_UID_LENGTH)
-    { 
-      ProccessUID(uidTemp.slice(1, 10))
+    if(uidTemp[0] === ";" && uidInput.length === UNFORMATTED_MAG_UID_LENGTH){ 
+      ProccessUID(uidTemp.slice(1, 10));
     }
-    else if(uidTemp[0] === "0" && uidInput.length === UNFORMATTED_RFID_UID_LENGTH)
-    { 
-      ProccessUID(uidTemp.slice(1, 10))
+    else if(uidTemp[0] === "0" && uidInput.length === UNFORMATTED_RFID_UID_LENGTH){ 
+      ProccessUID(uidTemp.slice(1, 10));
     }
     else if (uidTemp[0] !== ";" &&  uidTemp[0] !== "0" && 
-      uidInput.length === UNFORMATTED_RFID_UID_LENGTH){
+              uidInput.length === UNFORMATTED_RFID_UID_LENGTH){
       setUidInput('');
-      setOutput("Invalid Swipe")
+      setOutput("Invalid Swipe");
     }
   }
 
-  /* 
-  This function process the university ID
-    if no current user, set user
-    else if current user rescans card, reset logout timer
-    else process new user overide
+ /**This function process the university ID
+  *   if no current user, set user
+  *   else if current user rescans card, reset logout timer
+  *   else process new user overide
+  * Parameter: validUid - 9-digit University ID for user accessing machine
   */
   function ProccessUID(validUid){
-    writeToBack("Card Swipped\n")
+    writeToBack("Card Swipped\n");
     if (currUser === ""){ 
-      sendQuery(validUid)
+      sendQuery(validUid);
     }
     else if (validUid === currUser){
+      // Current User wants to add more time, reset user time
       writeToBack("\tADD TIME => " + validUid + "\n");
-      setUserTime(USER_TIME_FRAME)
       setUidInput('');
-      setUserOverride("")
-      setInUse("Machine in Use")
+      setUserOverride("");
+      setInUse("Machine in Use");
+      setUserTime(USER_TIME_FRAME);
+      document.body.style.animation = "flash 0s";
+      document.getElementById("UIDinput").style.animation = "flash 0s";
     }
     else {
       // New user wants to override machine
       if (userOverride === "" || userOverride !== validUid){
-        setUserOverride(validUid)
-        setInUse("Machine in Use => Swipe Again to Override User")
+        setUserOverride(validUid);
+        setInUse("Machine in Use => Swipe Again to Override User");
       }
       // New user scanned card twice
       else if (userOverride === validUid) {
-        writeToBack("\tUSER OVERRIDE => " + validUid + "\n")
-        logoutUID()
-        sendQuery(userOverride)
+        writeToBack("\tUSER OVERRIDE => " + validUid + "\n");
+        logoutUID();
+        sendQuery(userOverride);
       }
       setUidInput('');
     }
   }
 
-  /*
-  This function is called when the uid state is updated
-  It queries the server by sending the uid and machine id
-  to the server, then sets the output state based on the response
+ /**This function is called when the uid state is updated
+  *   It queries the server by sending the uid and machine id
+  *   to the server, then sets the output state based on the response
+  * Parameter: validUid - 9-digit University ID for user accessing machine
   */
   const sendQuery = (validUid) => {
     
@@ -145,24 +134,36 @@ const App = () => {
       .then(resp => console.log(resp.data))
       .catch(error =>console.error(error))
     
-    writeToBack("\tUser Logged: " + validUid + "\n")
+    let access = true;
+    if (access === true) {
+      loginUID(validUid);
+    }
+    else {
+      setOutput("User Recognized");
+      setInUse("Not Allowed Access to Machine");
+    }
+  }
+  
+  /**Log in a current user */
+  function loginUID(validUid) {
+    ////////////////////////////////////////////////////////// if user then login else print no access
+    writeToBack("\tUser Logged: " + validUid + "\n");
     
-    //tell gpioBackend to turn on the relay
     const pinObj = {
       state: 1
     }
-
+    //tell gpioBackend to turn on the relay
     axios.post(gpioBackend, pinObj)
       .then(response => {
         //if(response.ok) {console.log('Relay Change 1 Success')}
-	console.log('Relay Change 1 Success ', Boolean(response.data))
+        console.log('Relay Change 1 Success ', Boolean(response.data))
       });
     
     //reset the uid textbox
     setUidInput('');
-    setOutput("User Logged In")
-    setUser(validUid)
-    setInUse("Machine in Use")
+    setOutput("User Logged In");
+    setUser(validUid);
+    setInUse("Machine in Use");
     document.body.style.background = "Crimson";
     document.body.style.animation = "flash 0s";
     document.getElementById("UIDinput").style.background = "Crimson";
@@ -170,11 +171,9 @@ const App = () => {
     document.getElementById("UIDinput").style.animation = "flash 0s";
   }
 
-  /*
-  remove current user
-  */
+  /**Remove current user a.k.a Log out */
   function logoutUID() {
-    writeToBack("\tUser Out: " + currUser + "\n")
+    writeToBack("\tUser Out: " + currUser + "\n");
     
     //tell gpioBackend to turn off the relay
     const pinObj = {
@@ -182,15 +181,14 @@ const App = () => {
     }
     axios.post(gpioBackend, pinObj)
       .then(response => {
-        //if(response.ok) {console.log('Relay Change 0 Success')}
-	console.log('Relay Change 0 Success ', Boolean(response.data))
+	      console.log('Relay Change 0 Success ', Boolean(response.data))
       });
     
-    setUser("")
-    setUserOverride("")
-    setOutput("")
-    setInUse("")
-    setUserTime(USER_TIME_FRAME)
+    setUser("");
+    setUserOverride("");
+    setOutput("");
+    setInUse("");
+    setUserTime(USER_TIME_FRAME);
     document.body.style.background = "LimeGreen";
     document.body.style.animation = "flash 0s";
     document.getElementById("UIDinput").style.background = "LimeGreen";
@@ -198,25 +196,20 @@ const App = () => {
     document.getElementById("UIDinput").style.animation = "flash 0s";
   }
 
+  /**Function allows Frontend to write to the log in the Backend */
   function writeToBack(msg){
     axios.post(writeBackend, {data: msg})
       .then(response => {
-        //if(response.ok) {console.log('Write Success')}
-	console.log('Write Success ', Boolean(response.data))
+	      console.log('Write Success ', Boolean(response.data))
       });
-     // .catch()
   }
 
-  /*
-  reset Maintenance Request Timer
-  */
+  /**Reset Maintenance Request Timer */
   function resetRequest(){
-    setMachineTime(MACHINE_TIME_FRAME)
+    setMachineTime(MACHINE_TIME_FRAME);
   }
 
-  /*
-  Timers count down while exists a current user
-  */
+  /**Timers count down while there exists a current user */
   useEffect(() => {
     // create a interval and get the id
     const secInterval = setInterval(() => {
@@ -229,40 +222,39 @@ const App = () => {
     return () => clearInterval(secInterval);
   }, [currUser, machineTime, userTime]);
 
-  /*
-  Auto Logout Current user when userTime == 0
+ /**Auto Logout Current user when userTime == 0
+  *   Keep Count of User Time
   */
   useEffect(() => {
     if (userTime === 0) {
-      logoutUID()
+      logoutUID();
     }
     if (userTime === MINUTES){
       document.body.style.animation = "flash 2s infinite";
       document.getElementById("UIDinput").style.animation = "flash 2s infinite";
     }
+    //update user time in html
     let min = Math.floor(userTime/60);
     let sec = userTime%60;
     setSecond(sec > 9 ? sec : '0' + sec);
     setMinute(min > 9 ? min : '0' + min);
   }, [userTime]);
 
-  /*
-  This effect is called once at the start of the application
-  and sets up an EventSource to listen for e stop button press
-  events
+ /**This effect is called once at the start of the application
+  *   and sets up an EventSource to listen for E-Stop button 
+  *   press events
   */
   useEffect(() => {
     const eventSource = new EventSource(gpioBackend);
     eventSource.onmessage = (event) => {
-      writeToBack("Frontent Recieve Estop Press \n")
-      //log frontend e stop msg received
-      console.log('received e stop msg')
+      writeToBack("Frontent Recieve Estop Press \n");
       setEStopPressed(true);
-      logoutUID()
-      setTimeout(()=> setEStopPressed(false), 2000)
+      logoutUID();
+      setTimeout(()=> setEStopPressed(false), 2000);    // ############################## FOR TESTING PURPOSE
     };
   }, [])
 
+  //HTML Output
   return(
   <div className="acs-parent">
     <div className="uid-textbox">
