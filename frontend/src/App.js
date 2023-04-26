@@ -24,7 +24,7 @@ const App = () => {
   //constant for time
   const MINUTES = 60                  // 1 min = 60 sec
   const HOUR = 60*MINUTES             // 1 hr = 60 min
-  const USER_TIME_FRAME = 1*MINUTES   // Time user has for machine use
+  const USER_TIME_FRAME = 1*MINUTES + 5   // Time user has for machine use
   const MACHINE_TIME_FRAME = 1*HOUR   // Time machine has before maintenance check
   
   //The ID of the machine this ACS BOX is attached to
