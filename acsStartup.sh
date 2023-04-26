@@ -1,11 +1,11 @@
 #!/bin/bash
-function cleanup(){
+cleanup(){
 	kill $BACK_PID
-	kil $FRONT_PID
+	kill $FRONT_PID
 	echo "children killed"
 }
 
-cd /backend
+cd backend
 echo "At Backend"
 
 sudo node index.js &
@@ -17,7 +17,7 @@ sleep 5
 cd ../frontend
 echo "At Frontend"
 
-#npm run build
+npm run build
 
 echo "Start Frontend"
 xdg-open build/index.html
