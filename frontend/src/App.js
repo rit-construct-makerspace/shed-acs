@@ -1,6 +1,8 @@
 import React, {useState, useEffect} from "react";
 import axios from "axios";
 import "./App.css";
+import sound1 from "./sound/sound1.wav";
+import sound2 from "./sound/sound2.wav";
 
 const App = () => {
 
@@ -24,7 +26,7 @@ const App = () => {
   //constant for time
   const MINUTES = 60                  // 1 min = 60 sec
   const HOUR = 60*MINUTES             // 1 hr = 60 min
-  const USER_TIME_FRAME = 1*MINUTES + 5   // Time user has for machine use
+  const USER_TIME_FRAME = 1*MINUTES/12 + 5   // Time user has for machine use
   const MACHINE_TIME_FRAME = 1*HOUR   // Time machine has before maintenance check
   
   //The ID of the machine this ACS BOX is attached to
@@ -57,6 +59,10 @@ const App = () => {
   
   //Machine Maintenance time
   const [machineTime, setMachineTime] = useState(MACHINE_TIME_FRAME)
+
+  // Basic Audio to be played on login / logout
+  const loginSound = new Audio(sound1)
+  const logoutSound = new Audio(sound2)
 
   /**This function is called every time the uid-textbox is updated*/
   const checkUid = (uidTemp) => {
@@ -146,7 +152,6 @@ const App = () => {
   
   /**Log in a current user */
   function loginUID(validUid) {
-    ////////////////////////////////////////////////////////// if user then login else print no access
     writeToBack("\tUser Logged: " + validUid + "\n");
     
     const pinObj = {
@@ -158,6 +163,8 @@ const App = () => {
         //if(response.ok) {console.log('Relay Change 1 Success')}
         console.log('Relay Change 1 Success ', Boolean(response.data))
       });
+
+    loginSound.play();
     
     //reset the uid textbox
     setUidInput('');
@@ -184,6 +191,8 @@ const App = () => {
 	      console.log('Relay Change 0 Success ', Boolean(response.data))
       });
     
+    logoutSound.play();
+
     setUser("");
     setUserOverride("");
     setOutput("");

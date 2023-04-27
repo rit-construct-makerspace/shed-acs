@@ -1,5 +1,4 @@
 const GPIO = require('onoff').Gpio;
-const sound = require("sound-play");
 const fs = require('fs');
 const express = require('express');
 const cors = require('cors');
@@ -41,7 +40,6 @@ const sendSSE = (data) => {
     else{
         writeToFile('Sent Estop to Frontend Fail\n')
     }
-    
 }
 
 /**Make or close frontend connection */
@@ -76,10 +74,6 @@ function writeToFile(data) {
     });
 }
 
-function playTheSound() {
-    sound.play("song.mp3");
-}
-
 /**Create Frontend connection if not currently exist */
 app.get('/pin', (req, resp) => {
     if(frontend === null){
@@ -93,7 +87,7 @@ app.post('/pin', (req, resp) => {
     writeToFile(`relay becomes ${req.body.state}\n`)
     relay.writeSync(req.body.state);
     resp.send("true")
-    //log success / fail of pin change////////////////////////////////////Fail?
+    //log success or fail of pin change
 })
 
 /**Recieve message from Frontend to write to Log-file */
