@@ -102,7 +102,6 @@ app.post('/writeToFile',(req, resp) => {
 const server = app.listen(port, () => {
     //console.log(`Backend listening on port ${port}`);
     writeToFile(`Backend listening on port ${port}\n`);
-    playTheSound();
 })
 
 /**Handle safe close */
