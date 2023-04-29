@@ -141,6 +141,10 @@ const App = () => {
       .catch(error =>console.error(error))
     
     let access = true;
+
+    if (validUid === "222222222" || validUid === "666666666"){
+      access = false;
+    }
     if (access === true) {
       loginUID(validUid);
     }
