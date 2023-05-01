@@ -151,6 +151,7 @@ const App = () => {
     else {
       setOutput("User Recognized");
       setInUse("Not Allowed Access to Machine");
+      setUidInput('');
     }
   }
   
