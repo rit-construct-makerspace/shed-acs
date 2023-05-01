@@ -5,6 +5,19 @@ the relay and detecting E-Stop presses via the GPIO.
 
 **Prerequisites:** [Node.js](https://nodejs.org/en/download)
 
+Note: The default linux image for the Tinkerboard seems to be misconfigured when it comes to installing packages via apt-get.
+To temporarily fix this:
+1. Navigate to /etc/apt/apt.conf.d/ `cd /etc/apt/apt.conf.d/`
+2. Open apt.conf with a text editor (must use sudo)
+3. Add the below lines:
+
+`// Do not verify peer certificate
+Acquire::https::Verify-Peer "false";
+// Do not verify that certificate name matches server name
+Acquire::https::Verify-Host "false";`
+
+These lines should be deleted after Node.js is installed for better security. For more information, visit the first answer [here](https://unix.stackexchange.com/questions/317695/is-it-possible-to-have-apt-accept-an-invalid-certificate)
+
 ## Running the backend manually (Only works on Pi or Tinkerboard due to expecting GPIO)
 1. Open a terminal or command prompt and navigate to this directory
 2. Navigate to the backend directory `cd backend`
