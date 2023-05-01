@@ -34,3 +34,7 @@ The backend application will now be running inside this terminal and logging to 
 3. Run the command `npm install`
 4. Run the command `npm run build`
 5. Navigate to the build directory `cd build` and open index.html with a web browser (ex. chrome)
+
+## Software Architecture Block Diagram
+
+![Shed access control system software architecure block diagram](https://github.com/rit-construct-makerspace/shed-acs/blob/main/BlockDiagram.png)
