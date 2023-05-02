@@ -15,6 +15,7 @@ const pins = new Map([
 const relay = new GPIO(pins.get(BOARD)[0], 'out');
 const button = new GPIO(pins.get(BOARD)[1], 'in', 'falling', {debounceTimeout: 10});    //E stop button
 
+
 let frontend = null; //frontend connection object (EventSource)
 
 app.use(cors());
