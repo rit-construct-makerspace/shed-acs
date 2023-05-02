@@ -139,9 +139,9 @@ const App = () => {
     axios.post(url, body, options)
       .then(resp => console.log(resp.data))
       .catch(error =>console.error(error))
-    
+    // set access variable to match the query response
     let access = true;
-
+    //Example UID for no access
     if (validUid === "222222222" || validUid === "666666666"){
       access = false;
     }
