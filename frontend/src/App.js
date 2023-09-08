@@ -7,7 +7,7 @@ import sound2 from "./sound/sound2.wav";
 const App = () => {
 
   //the server's url
-  const url = "https://makerspace.herokuapp.com/graphql"
+  const url = "https://make.rit.edu/graphql"
 
   //gpio local backend url
   const gpioBackend = "http://localhost:3001/pin"
@@ -70,8 +70,11 @@ const App = () => {
       setUidInput(uidTemp); //echo uid to textbox
     }
     //check for valid input
-    if(uidTemp[0] === ";" && uidInput.length === UNFORMATTED_MAG_UID_LENGTH){ 
+    if(uidTemp[0] === ";" && uidInput.length === UNFORMATTED_MAG_UID_LENGTH){
+      var testing = uidTemp.slice(1, 10)
       ProccessUID(uidTemp.slice(1, 10));
+      console.log(testing);
+
     }
     else if(uidTemp[0] === "0" && uidInput.length === UNFORMATTED_RFID_UID_LENGTH){ 
       ProccessUID(uidTemp.slice(1, 10));
@@ -91,8 +94,9 @@ const App = () => {
   */
   function ProccessUID(validUid){
     writeToBack("Card Swipped\n");
-    if (currUser === ""){ 
-      sendQuery(validUid);
+    //if no user is currently logged in, begin process to login
+    if (currUser === ""){
+      sendQuery(valcidUid);
     }
     else if (validUid === currUser){
       // Current User wants to add more time, reset user time
@@ -136,6 +140,7 @@ const App = () => {
             'Content-Type': 'application/json'
         }
     }
+
     axios.post(url, body, options)
       .then(resp => console.log(resp.data))
       .catch(error =>console.error(error))
