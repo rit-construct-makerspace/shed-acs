@@ -96,7 +96,7 @@ const App = () => {
     writeToBack("Card Swipped\n");
     //if no user is currently logged in, begin process to login
     if (currUser === ""){
-      sendQuery(valcidUid);
+      sendQuery(validUid);
     }
     else if (validUid === currUser){
       // Current User wants to add more time, reset user time
