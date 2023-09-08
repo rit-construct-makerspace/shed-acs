@@ -20,7 +20,7 @@ const App = () => {
   }`;
 
   //constant length of a university ID num
-  const UNFORMATTED_MAG_UID_LENGTH = 15   //i.e. ;XXXXXXXXXXXXXX
+  const UNFORMATTED_MAG_UID_LENGTH = 16   //i.e. ;XXXXXXXXXXXXXX?
   const UNFORMATTED_RFID_UID_LENGTH = 9   //i.e. 0XXXXXXXXX
 
   //constant for time
