@@ -66,6 +66,9 @@ const App = () => {
 
   /**This function is called every time the uid-textbox is updated*/
   const checkUid = (uidTemp) => {
+
+    console.log("estop status: " + eStopPressed)
+
     if (!eStopPressed){
       setUidInput(uidTemp); //echo uid to textbox
     }
@@ -73,7 +76,8 @@ const App = () => {
     if(uidTemp[0] === ";" && uidInput.length === UNFORMATTED_MAG_UID_LENGTH){
       var testing = uidTemp.slice(1, 10)
       ProccessUID(uidTemp.slice(1, 10));
-      console.log(testing);
+      console.log("uidTemp: " + uidTemp + "testing: " + testing);
+
 
     }
     else if(uidTemp[0] === "0" && uidInput.length === UNFORMATTED_RFID_UID_LENGTH){ 
