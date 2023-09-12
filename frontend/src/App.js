@@ -7,7 +7,7 @@ import sound2 from "./sound/sound2.wav";
 const App = () => {
 
   //the server's url
-  const url = "https://make.rit.edu/graphql"
+  const url = "https://constructcontrol.herokuapp.com/graphql"
 
   //gpio local backend url
   const gpioBackend = "http://localhost:3001/pin"
@@ -20,7 +20,7 @@ const App = () => {
   }`;
 
   //constant length of a university ID num
-  const UNFORMATTED_MAG_UID_LENGTH = 16   //i.e. ;XXXXXXXXXXXXXX?
+  const UNFORMATTED_MAG_UID_LENGTH = 15   //i.e. ;XXXXXXXXXXXXXX
   const UNFORMATTED_RFID_UID_LENGTH = 9   //i.e. 0XXXXXXXXX
 
   //constant for time
