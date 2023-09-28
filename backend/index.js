@@ -147,7 +147,7 @@ app.post('/forwardRequest', (req, res) => {
             if (response.status === 200) {
                 access = response.data;
             } else {
-                throw new Error("Issue connecting to GraphQL Server: " + response.status + response.statusText);
+                throw new Error("Issue connecting to GraphQL Server: " + response.status);
             }
         })
 
