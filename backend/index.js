@@ -31,7 +31,7 @@ app.use(cors());
 app.use(express.json());
 
 console.log(path.join(__dirname, "../frontend/build/index.html"))
-app.use('/', express.static(path.join(__dirname, "../frontend/build/index.html")));
+app.use(express.static(path.join(__dirname, "../frontend/build/index.html")));
 
 
 /**Listen for activity on button GPIO pin */
