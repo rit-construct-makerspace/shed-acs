@@ -30,7 +30,7 @@ let frontend = null; //frontend connection object (EventSource)
 app.use(cors());
 app.use(express.json());
 
-app.get('/', function (req, res) {
+app.use('/', function (req, res) {
     res.sendFile(path.join(__dirname, '..', 'frontend','build', 'index.html'));
 });
 
