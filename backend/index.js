@@ -99,6 +99,64 @@ app.post('/writeToFile',(req, resp) => {
     //resp.status(200)
 });
 
+/**
+ * This api endpoint allows this server to act as a proxy to connect to the graphql server
+ * this proxy is required to solve cors issues that occur when querying the graphQL from a statically served website
+ *
+ * TODO: possibly setup the frontend to run off of this server to fix cors issues?
+ */
+app.post('/forwardRequest', (req, res) => {
+    const server_url = "https://constructcontrol.herokuapp.com/graphql"
+
+    const graphQLQuery = req.body.graphQLQuery
+    const EQUIPMENT_ID = req.body.EQUIPMENT_ID
+    const validUid = req.body.validUid
+
+    const body =  {
+        query: graphQLQuery,
+        variables: {"id": EQUIPMENT_ID, "uid": validUid}
+    }
+    const options = {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }
+
+    var access
+
+    const request = new Request(server_url, {
+        method: "POST",
+        body: JSON.stringify(body), //Might not need to stringify but doing it to be safe
+    });
+
+    fetch(request)
+        .then((response) => {
+            if (response.status === 200) {
+                access = response.data;
+            } else {
+                throw new Error("Issue connecting to GraphQL Server: " + response.status + response.statusText);
+            }
+        })
+
+
+    // axios.post(url, body, options)
+    //     .then(resp => (access=resp.data))     // set access variable to match the query response
+    //     .catch(error =>console.error(error))
+    // access = true; //Example access for testing
+    //Example UID for no access
+
+    if (access === true) {
+        loginUID(validUid);
+    }
+    else {
+        setOutput("User Recognized");
+        setInUse("Not Allowed Access to Machine");
+        setUidInput('');
+    }
+
+
+}
+
 /**Open port for frontend connection */
 const server = app.listen(port, () => {
     //console.log(`Backend listening on port ${port}`);

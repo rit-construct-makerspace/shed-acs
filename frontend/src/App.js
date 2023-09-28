@@ -12,6 +12,7 @@ const App = () => {
   //gpio local backend url
   const gpioBackend = "http://localhost:3001/pin"
   const writeBackend = "http://localhost:3001/writeToFile"
+  const graphqlForwardingBackend = "http://localhost:3001/forwardRequest"
 
   const graphQLQuery = `query HasAccess($id:ID!, $uid:String) {
     equipment(id: $id){
@@ -145,11 +146,12 @@ const App = () => {
         }
     }
 
+    var access
     axios.post(url, body, options)
-      .then(resp => console.log(resp.data))
+      .then(resp => (access=resp.data))     // set access variable to match the query response
       .catch(error =>console.error(error))
-    // set access variable to match the query response
-    let access = true;
+    // access = true; //Example access for testing
+    console.log(access);
     //Example UID for no access
     if (validUid === "222222222" || validUid === "666666666"){
       access = false;
