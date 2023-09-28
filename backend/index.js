@@ -153,7 +153,7 @@ app.post('/forwardRequest', (req, res) => {
 
     res.pipe(access)
 
-}
+})
 
 /**Open port for frontend connection */
 const server = app.listen(port, () => {
