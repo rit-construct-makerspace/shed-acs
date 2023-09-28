@@ -30,8 +30,10 @@ let frontend = null; //frontend connection object (EventSource)
 app.use(cors());
 app.use(express.json());
 
-console.log(path.join(__dirname, "../frontend/build/index.html"))
-app.use(express.static(path.join(__dirname, "../frontend/build/index.html")));
+const buildPath = path.join(__dirname, "../frontend/build")
+
+console.log(buildPath)
+app.use(express.static(buildPath));
 
 
 /**Listen for activity on button GPIO pin */
@@ -159,6 +161,13 @@ app.post('/forwardRequest', (req, res) => {
     res.pipe(access)
 
 })
+
+const rootRouter = express.Router();
+
+rootRouter.get('*', async (req, res, next) => {
+    res.sendFile(path.join(buildPath, 'index.html'));
+});
+app.use(rootRouter);
 
 /**Open port for frontend connection */
 const server = app.listen(port, () => {
