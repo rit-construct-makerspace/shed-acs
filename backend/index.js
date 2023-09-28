@@ -158,7 +158,7 @@ app.post('/forwardRequest', (req, res) => {
     // access = true; //Example access for testing
     //Example UID for no access
 
-    res.pipe(access)
+    res.json({"access":access});
 
 })
 
