@@ -8,6 +8,8 @@
 # testing
 /coverage
 
+#ide settings
+.idea
 
 # misc
 .DS_Store
