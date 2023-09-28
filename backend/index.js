@@ -139,7 +139,7 @@ app.post('/forwardRequest', (req, res) => {
 
     const request = new Request(server_url, {
         method: "POST",
-        body: JSON.stringify(body), //Might not need to stringify but doing it to be safe
+        body: body, //Might not need to stringify but doing it to be safe
     });
 
     fetch(request)

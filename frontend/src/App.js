@@ -65,7 +65,6 @@ const App = () => {
     if(uidTemp[0] === ";" && uidInput.length === UNFORMATTED_MAG_UID_LENGTH){
       var testing = uidTemp.slice(1, 10)
       ProccessUID(uidTemp.slice(1, 10));
-      console.log("uidTemp: " + uidTemp + "testing: " + testing);
 
 
     }
