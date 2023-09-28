@@ -15,6 +15,14 @@ const pins = new Map([
 const relay = new GPIO(pins.get(BOARD)[0], 'out');
 const button = new GPIO(pins.get(BOARD)[1], 'in', 'falling', {debounceTimeout: 10});    //E stop button
 
+//The ID of the machine this ACS BOX is attached to
+const EQUIPMENT_ID = 1 //CNC machine in test db
+
+const graphQLQuery = `query HasAccess($id:ID!, $uid:String) {
+    equipment(id: $id){
+      hasAccess(uid: $uid)
+    }
+  }`;
 
 let frontend = null; //frontend connection object (EventSource)
 
@@ -107,10 +115,8 @@ app.post('/writeToFile',(req, resp) => {
  */
 app.post('/forwardRequest', (req, res) => {
     const server_url = "https://constructcontrol.herokuapp.com/graphql"
-
-    const graphQLQuery = req.body.graphQLQuery
-    const EQUIPMENT_ID = req.body.EQUIPMENT_ID
-    const validUid = req.body.validUid
+    
+    const validUid = req.body.id
 
     const body =  {
         query: graphQLQuery,
@@ -145,15 +151,7 @@ app.post('/forwardRequest', (req, res) => {
     // access = true; //Example access for testing
     //Example UID for no access
 
-    if (access === true) {
-        loginUID(validUid);
-    }
-    else {
-        setOutput("User Recognized");
-        setInUse("Not Allowed Access to Machine");
-        setUidInput('');
-    }
-
+    res.pipe(access)
 
 }
 

@@ -6,19 +6,10 @@ import sound2 from "./sound/sound2.wav";
 
 const App = () => {
 
-  //the server's url
-  const url = "https://constructcontrol.herokuapp.com/graphql"
-
   //gpio local backend url
   const gpioBackend = "http://localhost:3001/pin"
   const writeBackend = "http://localhost:3001/writeToFile"
   const graphqlForwardingBackend = "http://localhost:3001/forwardRequest"
-
-  const graphQLQuery = `query HasAccess($id:ID!, $uid:String) {
-    equipment(id: $id){
-      hasAccess(uid: $uid)
-    }
-  }`;
 
   //constant length of a university ID num
   const UNFORMATTED_MAG_UID_LENGTH = 15   //i.e. ;XXXXXXXXXXXXXX
@@ -29,11 +20,8 @@ const App = () => {
   const HOUR = 60*MINUTES             // 1 hr = 60 min
   const USER_TIME_FRAME = 1*MINUTES/12 + 5   // Time user has for machine use
   const MACHINE_TIME_FRAME = 1*HOUR   // Time machine has before maintenance check
-  
-  //The ID of the machine this ACS BOX is attached to
-  const EQUIPMENT_ID = 1 //CNC machine in test db
-  
-  //This state tracks whether the e stop button has been pressed
+
+  //This state tracks whether the e stop button has been pressed2
   const [eStopPressed, setEStopPressed] = useState(false)
   
   //This piece of state contains the text currently
@@ -130,16 +118,14 @@ const App = () => {
   }
 
  /**This function is called when the uid state is updated
-  *   It queries the server by sending the uid and machine id
+  *   It queries the proxy server by sending the uid and machine id
   *   to the server, then sets the output state based on the response
   * Parameter: validUid - 9-digit University ID for user accessing machine
   */
   const sendQuery = (validUid) => {
     
-    const body =  { 
-        query: graphQLQuery, 
-        variables: {"id": EQUIPMENT_ID, "uid": validUid}
-    }
+    const body =  {"id": validUid}
+
     const options = {
         headers: {
             'Content-Type': 'application/json'
@@ -147,15 +133,13 @@ const App = () => {
     }
 
     var access
-    axios.post(url, body, options)
-      .then(resp => (access=resp.data))     // set access variable to match the query response
+    axios.post(graphqlForwardingBackend, body, options)
+      .then(resp => (access=Boolean(resp.data)))     // set access variable to match the query response
       .catch(error =>console.error(error))
+
     // access = true; //Example access for testing
     console.log(access);
-    //Example UID for no access
-    if (validUid === "222222222" || validUid === "666666666"){
-      access = false;
-    }
+
     if (access === true) {
       loginUID(validUid);
     }
