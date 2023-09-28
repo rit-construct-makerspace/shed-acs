@@ -2,6 +2,7 @@ const GPIO = require('onoff').Gpio;
 const fs = require('fs');
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const app = express();
 const port = 3001;
 
@@ -28,6 +29,11 @@ let frontend = null; //frontend connection object (EventSource)
 
 app.use(cors());
 app.use(express.json());
+
+app.get('/', function (req, res) {
+    res.sendFile(path.join(__dirname, 'build', 'index.html'));
+});
+
 
 /**Listen for activity on button GPIO pin */
 button.watch((error, value) => {
