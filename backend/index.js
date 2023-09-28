@@ -31,7 +31,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/', function (req, res) {
-    res.sendFile(path.join(__dirname, '..', 'frontend','build', 'index.html'));
+    res.sendFile(express.static(path.join(__dirname, '../frontend/build/index.html')));
 });
 
 
