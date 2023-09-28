@@ -162,12 +162,11 @@ app.post('/forwardRequest', (req, res) => {
 
 })
 
-const rootRouter = express.Router();
 
-rootRouter.get('*', async (req, res, next) => {
+app.get('*', async (req, res, next) => {
     res.sendFile(path.join(buildPath, 'index.html'));
 });
-app.use(rootRouter);
+
 
 /**Open port for frontend connection */
 const server = app.listen(port, () => {
