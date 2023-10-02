@@ -19,11 +19,7 @@ const button = new GPIO(pins.get(BOARD)[1], 'in', 'falling', {debounceTimeout: 1
 //The ID of the machine this ACS BOX is attached to
 const EQUIPMENT_ID = 1 //CNC machine in test db
 
-const graphQLQuery = `query HasAccess($id:ID!, $uid:String) {
-    equipment(id: $id){
-      hasAccess(uid: $uid)
-    }
-  }`;
+
 
 let frontend = null; //frontend connection object (EventSource)
 
@@ -32,7 +28,6 @@ app.use(express.json());
 
 const buildPath = path.join(__dirname, "../frontend/build")
 
-console.log(buildPath)
 app.use(express.static(buildPath));
 
 
@@ -118,10 +113,17 @@ app.post('/writeToFile',(req, resp) => {
  * This api endpoint allows this server to act as a proxy to connect to the graphql server
  * this proxy is required to solve cors issues that occur when querying the graphQL from a statically served website
  *
- * TODO: possibly setup the frontend to run off of this server to fix cors issues?
  */
 app.post('/forwardRequest', (req, res) => {
     const server_url = "https://constructcontrol.herokuapp.com/graphql"
+
+    const graphQLQuery = `
+    query HasAccess($id:ID!, $uid:String) {
+        equipment(id: $id){
+            hasAccess(uid: $uid)
+        }
+    }
+    `;
     
     const validUid = req.body.id
 
@@ -141,6 +143,8 @@ app.post('/forwardRequest', (req, res) => {
         method: "POST",
         body: body, //Might not need to stringify but doing it to be safe
     });
+
+    console.log(request)
 
     fetch(request)
         .then((response) => {
@@ -162,7 +166,9 @@ app.post('/forwardRequest', (req, res) => {
 
 })
 
-
+/**
+ * This serves the built index.html to localhost:3001
+ */
 app.get('*', async (req, res, next) => {
     res.sendFile(path.join(buildPath, 'index.html'));
 });
