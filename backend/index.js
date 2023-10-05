@@ -133,6 +133,7 @@ app.post('/forwardRequest', (req, res) => {
     const validUid = req.body.id
 
     const body =  {
+        operationName: "hasAccess",
         query: hasAccessQuery,
         variables: {"id": EQUIPMENT_ID, "uid": validUid}
     }
