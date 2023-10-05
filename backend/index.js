@@ -150,7 +150,7 @@ app.post('/forwardRequest', (req, res) => {
         body: body, //Might not need to stringify but doing it to be safe
     });
 
-    console.log("request body", request.body)
+    console.log("request body", request.body.toString())
 
     fetch(request)
         .then((response) => {
