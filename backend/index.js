@@ -38,7 +38,7 @@ button.watch((error, value) => {
     }
     //console.log('E stop pressed');
     writeToFile('Estop Press in Backend\n');
-    relay.writeSync(0);
+        relay.writeSync(0);
     sendSSE({message: 'E stop pressed'});
 })
 
@@ -115,12 +115,17 @@ app.post('/writeToFile',(req, resp) => {
  *
  */
 app.post('/forwardRequest', (req, res) => {
-    const server_url = "https://constructcontrol.herokuapp.com/graphql"
+    const server_url = "https://constructcontrol.herokuapp.com/graphql";
 
-    const graphQLQuery = `
-    query HasAccess($id:ID!, $uid:String) {
+    const logMachineSwipeQuery = '';
+
+
+    const hasAccessQuery = `
+    query hasAccess($id:ID!, $uid:String) {
         equipment(id: $id){
-            hasAccess(uid: $uid)
+            hasAccess(uid: $uid){
+                access
+            }
         }
     }
     `;
@@ -128,7 +133,7 @@ app.post('/forwardRequest', (req, res) => {
     const validUid = req.body.id
 
     const body =  {
-        query: graphQLQuery,
+        query: hasAccessQuery,
         variables: {"id": EQUIPMENT_ID, "uid": validUid}
     }
     const options = {
