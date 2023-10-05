@@ -150,14 +150,14 @@ app.post('/forwardRequest', (req, res) => {
         body: body, //Might not need to stringify but doing it to be safe
     });
 
-    console.log(request.body)
+    console.log("request body", request.body)
 
     fetch(request)
         .then((response) => {
             if (response.status === 200) {
                 access = response.data;
             } else {
-                console.log(response)
+                console.log("response:", response)
                 throw new Error("Issue connecting to GraphQL Server: " + response.status);
             }
         })
