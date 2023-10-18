@@ -1,4 +1,4 @@
-const GPIO = require('onoff').Gpio;
+// const GPIO = require('onoff').Gpio;
 const fs = require('fs');
 const express = require('express');
 const cors = require('cors');
@@ -13,8 +13,8 @@ const pins = new Map([
   ["RaspberryPi", [6,26]]
 ]);
 
-const relay = new GPIO(pins.get(BOARD)[0], 'out');
-const button = new GPIO(pins.get(BOARD)[1], 'in', 'falling', {debounceTimeout: 10});    //E stop button
+// const relay = new GPIO(pins.get(BOARD)[0], 'out');
+// const button = new GPIO(pins.get(BOARD)[1], 'in', 'falling', {debounceTimeout: 10});    //E stop button
 
 //The ID of the machine this ACS BOX is attached to
 const EQUIPMENT_ID = 1 //CNC machine in test db
@@ -31,16 +31,16 @@ const buildPath = path.join(__dirname, "../frontend/build")
 app.use(express.static(buildPath));
 
 
-/**Listen for activity on button GPIO pin */
-button.watch((error, value) => {
-    if(error){
-        console.log(error);
-    }
-    //console.log('E stop pressed');
-    writeToFile('Estop Press in Backend\n');
-        relay.writeSync(0);
-    sendSSE({message: 'E stop pressed'});
-})
+// /**Listen for activity on button GPIO pin */
+// button.watch((error, value) => {
+//     if(error){
+//         console.log(error);
+//     }
+//     //console.log('E stop pressed');
+//     writeToFile('Estop Press in Backend\n');
+//         relay.writeSync(0);
+//     sendSSE({message: 'E stop pressed'});
+// })
 
 /**Send E-stop press notification to frontend */
 const sendSSE = (data) => {
@@ -96,7 +96,7 @@ app.get('/pin', (req, resp) => {
 app.post('/pin', (req, resp) => {
     //console.log(`relay becomes ${req.body.state}`)
     writeToFile(`relay becomes ${req.body.state}\n`)
-    relay.writeSync(req.body.state);
+    // relay.writeSync(req.body.state);
     resp.send("true")
     //log success or fail of pin change
 })
@@ -188,10 +188,10 @@ const server = app.listen(port, () => {
 })
 
 /**Handle safe close */
-process.on('SIGINT', _ => {
-    console.log('got sigint, closing')
-    writeToFile('Backend is closing\n')
-    relay.unexport();
-    button.unexport();
-    server.close();
-})
+// process.on('SIGINT', _ => {
+//     console.log('got sigint, closing')
+//     writeToFile('Backend is closing\n')
+//     relay.unexport();
+//     button.unexport();
+//     server.close();
+// })
