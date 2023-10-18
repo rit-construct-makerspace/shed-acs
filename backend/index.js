@@ -120,15 +120,15 @@ app.post('/forwardRequest', (req, res) => {
     const logMachineSwipeQuery = '';
 
 
-    const hasAccessQuery =
-    'query hasAccess($id:ID!, $uid:String) {'+
-        'equipment(id: $id){'+
-            'hasAccess(uid: $uid){' +
-                'access' +
-            '}'+
-        '}'+
-    '}'
-    ;
+    const hasAccessQuery = `
+    query hasAccess($id:ID!, $uid:String) {
+        equipment(id: $id){
+            hasAccess(uid: $uid){
+                access
+            }
+        }
+    }
+    `;
     
     const validUid = req.body.id
 
